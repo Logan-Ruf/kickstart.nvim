@@ -2,4 +2,15 @@
 --  I promise not to create any merge conflicts in this directory :)
 --
 -- See the kickstart.nvim README for more information
-return {}
+return {
+  vim.keymap.set('i', '<C-Enter>', function()
+    vim.lsp.buf.code_action {
+      context = {
+        only = {
+          'source.organizeImports',
+          'source.addImport',
+        },
+      },
+    }
+  end, { desc = 'Organize/Add Imports (Insert mode)' }),
+}
