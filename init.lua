@@ -130,6 +130,12 @@ vim.g.clipboard = {
   },
   cache_enabled = 0,
 }
+-- Set line numbering (both absolute and relative)
+vim.opt.number = true
+vim.opt.relativenumber = true
+
+-- Map 'jj' to Escape in insert mode
+vim.keymap.set('i', 'jj', '<Esc>', { noremap = true })
 
 -- Enable break indent
 vim.opt.breakindent = true
@@ -699,7 +705,8 @@ require('lazy').setup({
         -- But for many setups, the LSP (`ts_ls`) will work just fine
 
         ruff = {},
-        jedi_language_server = {},
+        -- jedi_language_server = {},
+        basedpyright = {},
 
         tailwindcss = {
           settings = {
@@ -709,7 +716,7 @@ require('lazy').setup({
           },
         },
 
-        volar = {
+        ['vue-language-server'] = {
           filetypes = { 'javascriptreact', 'typescriptreact', 'vue', 'svg' },
           init_options = {
             vue = {
@@ -795,8 +802,6 @@ require('lazy').setup({
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
       require('mason-lspconfig').setup {
-        ensure_installed = {}, -- explicitly set to an empty table (Kickstart populates installs via mason-tool-installer)
-        automatic_installation = false,
         handlers = {
           function(server_name)
             local server = servers[server_name] or {}
@@ -1099,7 +1104,7 @@ require('lazy').setup({
   --    This is the easiest way to modularize your config.
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
-  -- { import = 'custom.plugins' },
+  { import = 'custom.plugins' },
   --
   -- For additional information with loading, sourcing and examples see `:help lazy.nvim-🔌-plugin-spec`
   -- Or use telescope!
