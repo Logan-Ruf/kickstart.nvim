@@ -102,7 +102,13 @@ vim.g.have_nerd_font = false
 vim.opt.number = true
 -- You can also add relative line numbers, to help with jumping.
 --  Experiment for yourself to see if you like it!
--- vim.opt.relativenumber = true
+vim.opt.relativenumber = true
+
+-- Tab settings
+vim.opt.tabstop = 2
+vim.opt.shiftwidth = 2
+vim.opt.expandtab = true
+vim.opt.softtabstop = 2
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
@@ -130,9 +136,6 @@ vim.g.clipboard = {
   },
   cache_enabled = 0,
 }
--- Set line numbering (both absolute and relative)
-vim.opt.number = true
-vim.opt.relativenumber = true
 
 -- Map 'jj' to Escape in insert mode
 vim.keymap.set('i', 'jj', '<Esc>', { noremap = true })
@@ -290,18 +293,18 @@ require('lazy').setup({
   -- options to `gitsigns.nvim`.
   --
   -- See `:help gitsigns` to understand what the configuration keys do
-  { -- Adds git related signs to the gutter, as well as utilities for managing changes
-    'lewis6991/gitsigns.nvim',
-    opts = {
-      signs = {
-        add = { text = '+' },
-        change = { text = '~' },
-        delete = { text = '_' },
-        topdelete = { text = '‾' },
-        changedelete = { text = '~' },
-      },
-    },
-  },
+  -- { -- Adds git related signs to the gutter, as well as utilities for managing changes
+  --   'lewis6991/gitsigns.nvim',
+  --   opts = {
+  --     signs = {
+  --       add = { text = '+' },
+  --       change = { text = '~' },
+  --       delete = { text = '_' },
+  --       topdelete = { text = '‾' },
+  --       changedelete = { text = '~' },
+  --     },
+  --   },
+  -- },
 
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
   --
@@ -704,7 +707,7 @@ require('lazy').setup({
         --
         -- But for many setups, the LSP (`ts_ls`) will work just fine
 
-        ruff = {},
+        -- ruff = {},
         -- jedi_language_server = {},
         basedpyright = {},
 
@@ -714,49 +717,82 @@ require('lazy').setup({
               tabSize = 2,
             },
           },
+          filetypes = { 'html', 'vue', 'astro' },
         },
 
         vue_ls = {
-          filetypes = { 'javascriptreact', 'typescriptreact', 'vue', 'svg' },
-          init_options = {
-            vue = {
-              -- disable hybrid mode
-              hybridMode = false,
-            },
+          filetypes = { 'vue' },
+        },
+
+        vtsls = {
+          filetypes = {
+            'javascript',
+            'javascriptreact',
+            'typescript',
+            'typescriptreact',
+            'vue',
           },
           settings = {
+            vtsls = {
+              tsserver = {
+                globalPlugins = {
+                  {
+                    name = '@vue/typescript-plugin',
+                    location = vim.fn.stdpath 'data' .. '/mason/packages/vue-language-server/node_modules/@vue/language-server',
+                    languages = { 'vue' },
+                    configNamespace = 'typescript',
+                  },
+                },
+              },
+            },
             typescript = {
               format = {
                 indentSize = 2,
                 tabSize = 2,
+                convertTabsToSpaces = true,
+              },
+              inlayHints = {
+                enumMemberValues = { enabled = true },
+                functionLikeReturnTypes = { enabled = true },
+                parameterTypes = { enabled = true },
+                propertyDeclarationTypes = { enabled = true },
+                variableTypes = { enabled = true },
               },
             },
           },
         },
 
-        ts_ls = {
-          init_options = {
-            plugins = {
-              {
-                name = '@vue/typescript-plugin',
-                location = '/usr/local/lib/node_modules/@vue/typescript-plugin',
-                languages = { 'javascript', 'typescript', 'vue' },
-              },
-            },
-          },
-          filetypes = {
-            'javascript',
-            'typescript',
-          },
-          settings = {
-            typescript = {
-              format = {
-                indentSize = 2,
-                tabSize = 2,
-              },
-            },
-          },
-        },
+        -- ts_ls = {
+        --   init_options = {
+        --     plugins = {
+        --       {
+        --         name = '@vue/typescript-plugin',
+        --         location = '/usr/local/lib/node_modules/@vue/typescript-plugin',
+        --         languages = { 'javascript', 'typescript', 'vue' },
+        --       },
+        --     },
+        --   },
+        --   filetypes = {
+        --     'javascript',
+        --     'typescript',
+        --   },
+        --   settings = {
+        --     typescript = {
+        --       format = {
+        --         indentSize = 2,
+        --         tabSize = 2,
+        --         convertTabsToSpaces = true,
+        --       },
+        --     },
+        --     javascript = {
+        --       format = {
+        --         indentSize = 2,
+        --         tabSize = 2,
+        --         convertTabsToSpaces = true,
+        --       },
+        --     },
+        --   },
+        -- },
 
         lua_ls = {
           -- cmd = { ... },
@@ -790,8 +826,9 @@ require('lazy').setup({
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
-        'typescript-language-server', -- For TypeScript support
         'vue-language-server', -- For Vue/Nuxt support (Volar)
+        'vtsls',
+        'astro-language-server',
         'tailwindcss-language-server',
         'rustywind',
         'prettierd',
@@ -803,7 +840,9 @@ require('lazy').setup({
 
       require('mason-lspconfig').setup {
         ensure_installed = vim.tbl_keys(servers or {}),
-        automatic_enable = true,
+        -- automatic_enable = true,
+        -- Exclude vue_ls from automatic setup to avoid the error
+        automatic_enable = { exclude = { 'vue_ls' } },
       }
 
       -- Configure LSP servers manually since handlers are removed in v2
@@ -812,6 +851,7 @@ require('lazy').setup({
         server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
         require('lspconfig')[server_name].setup(server)
       end
+      vim.lsp.enable { 'vue_ls' }
     end,
   },
 
@@ -848,13 +888,15 @@ require('lazy').setup({
       formatters_by_ft = {
         lua = { 'stylua' },
         -- Conform can also run multiple formatters sequentially
-        python = { 'ruff', 'isort', 'black' },
+        python = { 'ruff_format' },
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
         -- javascript = { "prettierd", "prettier", stop_after_first = true },
         vue = { 'rustwind', 'prettierd' },
+        astro = { 'rustwind', 'prettierd' },
         html = { 'rustwind', 'prettierd' },
         svg = { 'prettierd' },
+        json = { 'prettierd' },
       },
     },
   },
@@ -972,6 +1014,7 @@ require('lazy').setup({
           { name = 'luasnip' },
           { name = 'path' },
           { name = 'nvim_lsp_signature_help' },
+          { name = 'supermaven' },
         },
       }
     end,
@@ -1097,7 +1140,7 @@ require('lazy').setup({
   -- require 'kickstart.plugins.lint',
   require 'kickstart.plugins.autopairs',
   require 'kickstart.plugins.neo-tree',
-  -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
+  require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.
@@ -1145,3 +1188,10 @@ require('lazy').setup({
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
+
+-- Remove background to make transparent
+vim.api.nvim_set_hl(0, 'Normal', { bg = 'none' })
+vim.api.nvim_set_hl(0, 'NormalNC', { bg = 'none' })
+vim.api.nvim_set_hl(0, 'NormalFloat', { bg = 'none' })
+vim.api.nvim_set_hl(0, 'LineNr', { bg = 'none' })
+vim.api.nvim_set_hl(0, 'SignColumn', { bg = 'none' })
