@@ -7,19 +7,19 @@
 --
 -- See the kickstart.nvim README for more information
 return {
-  {
-    'supermaven-inc/supermaven-nvim',
-    config = function()
-      require('supermaven-nvim').setup {
-        keymaps = {
-          -- Use Shift+Tab to accept suggestion
-          accept_suggestion = '<S-Tab>',
-          clear_suggestion = '<C-]>',
-          accept_word = '<C-j>',
-        },
-      }
-    end,
-  },
+  -- {
+  --   'supermaven-inc/supermaven-nvim',
+  --   config = function()
+  --     require('supermaven-nvim').setup {
+  --       keymaps = {
+  --         -- Use Shift+Tab to accept suggestion
+  --         accept_suggestion = '<S-Tab>',
+  --         clear_suggestion = '<C-]>',
+  --         accept_word = '<C-j>',
+  --       },
+  --     }
+  --   end,
+  -- },
   -- {
   --   'github/copilot.vim',
   --   config = function()

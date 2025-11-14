@@ -840,18 +840,15 @@ require('lazy').setup({
 
       require('mason-lspconfig').setup {
         ensure_installed = vim.tbl_keys(servers or {}),
-        -- automatic_enable = true,
-        -- Exclude vue_ls from automatic setup to avoid the error
-        automatic_enable = { exclude = { 'vue_ls' } },
+        automatic_enable = true,
       }
 
       -- Configure LSP servers manually since handlers are removed in v2
-      for server_name, server_config in pairs(servers) do
-        local server = server_config or {}
-        server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-        require('lspconfig')[server_name].setup(server)
-      end
-      vim.lsp.enable { 'vue_ls' }
+      -- for server_name, server_config in pairs(servers) do
+      --   local server = server_config or {}
+      --   server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
+      --   require('lspconfig')[server_name].setup(server)
+      -- end
     end,
   },
 
@@ -888,7 +885,7 @@ require('lazy').setup({
       formatters_by_ft = {
         lua = { 'stylua' },
         -- Conform can also run multiple formatters sequentially
-        python = { 'ruff_format' },
+        python = { 'ruff_organize_imports', 'ruff_fix', 'ruff_format' },
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
         -- javascript = { "prettierd", "prettier", stop_after_first = true },
